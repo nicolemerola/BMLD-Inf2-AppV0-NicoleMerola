@@ -6,8 +6,8 @@ st.title("Meine erste Streamlit App")
 
 """
 Diese App wurde von folgenden Personen entwickelt:
-- Anna Müller (anmu@zhaw.ch)
-- Peter Meier (peme@zhaw.ch)
+- Nicole Merola (merolnic@students.zhaw.ch)
+- Marie Weiss (weisma8@students.zhaw.ch)
 
 Diese App ist das leere Gerüst für die App-Entwicklung im Modul Informatik 2 (BMLD/ZHAW)
 
