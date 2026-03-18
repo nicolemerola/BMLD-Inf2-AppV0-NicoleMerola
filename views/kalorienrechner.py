@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from functions.kalorienrechner import BMR_rechnen
-from utils.data_manager import DataManager
+
 
 st.title("Kalorienbedarf Rechner")
 st.write("Berechne deinen täglichen Kalorienbedarf.")
@@ -62,8 +62,8 @@ if submit:
         ignore_index=True
     )
 
-    data_manager = DataManager()
-    data_manager.save_user_data(st.session_state["data_df"], "data.csv")
+    data_manager = st.session_state["data_manager"]
+data_manager.save_user_data(st.session_state["data_df"], "data.csv")
 
 # Ergebnis anzeigen
 if st.session_state.kalorien is not None:
