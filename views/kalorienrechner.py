@@ -1,14 +1,21 @@
 import streamlit as st
-from functions.kalorienrechner import BMR_rechner
+import pandas as pd
+from functions.kalorienrechner import BMR_rechnen
 from utils.data_manager import DataManager
 
 st.title("Kalorienbedarf Rechner")
 st.write("Berechne deinen täglichen Kalorienbedarf.")
 
-# initialize session state entries if they don't exist yet
+# Session State initialisieren
 for key in ("geschlecht", "gewicht", "groesse", "alter", "aktivitaet", "kalorien"):
     if key not in st.session_state:
         st.session_state[key] = None
+
+# Falls data_df noch nicht existiert, leeres DataFrame anlegen
+if "data_df" not in st.session_state:
+    st.session_state["data_df"] = pd.DataFrame(
+        columns=["timestamp", "geschlecht", "gewicht", "groesse", "alter", "aktivitaet", "kalorien"]
+    )
 
 with st.form("calorie_form"):
     geschlecht = st.selectbox("Geschlecht", ["Mann", "Frau"], key="geschlecht")
@@ -25,11 +32,10 @@ with st.form("calorie_form"):
     submit = st.form_submit_button("Berechnen")
 
 if submit:
-    # compute BMR
     if geschlecht == "Mann":
-        bmr = BMR_rechner(gewicht, groesse, alter, geschlecht)
+        bmr = BMR_rechnen(gewicht, groesse, alter, geschlecht)
     else:
-        bmr = BMR_rechner(gewicht, groesse, alter, "Frau")
+        bmr = BMR_rechnen(gewicht, groesse, alter, "Frau")
 
     faktor = {
         "wenig Bewegung": 1.2,
@@ -41,11 +47,29 @@ if submit:
     kalorien = bmr * faktor[aktivitaet]
     st.session_state.kalorien = kalorien
 
-# show stored result if any
+    new_row = {
+        "timestamp": pd.Timestamp.now(),
+        "geschlecht": geschlecht,
+        "gewicht": gewicht,
+        "groesse": groesse,
+        "alter": alter,
+        "aktivitaet": aktivitaet,
+        "kalorien": kalorien
+    }
+
+    st.session_state["data_df"] = pd.concat(
+        [st.session_state["data_df"], pd.DataFrame([new_row])],
+        ignore_index=True
+    )
+
+    data_manager = DataManager()
+    data_manager.save_user_data(st.session_state["data_df"], "data.csv")
+
+# Ergebnis anzeigen
 if st.session_state.kalorien is not None:
     st.metric("Dein täglicher Kalorienbedarf", f"{st.session_state.kalorien:.0f} kcal")
 
-# example of using session_state to retain inputs between page reloads
+# Eingaben anzeigen
 st.write("### Eingaben (Session State)")
 st.write({
     "Geschlecht": st.session_state.geschlecht,
@@ -54,5 +78,9 @@ st.write({
     "Alter": st.session_state.alter,
     "Aktivität": st.session_state.aktivitaet,
 })
-    data_manager = DataManager()
-    data_manager.save_user_data(st.session_state['data_df'], 'data.csv')
+
+# Verlauf anzeigen
+if not st.session_state["data_df"].empty:
+    st.write("### Verlauf")
+    st.dataframe(st.session_state["data_df"])
+  

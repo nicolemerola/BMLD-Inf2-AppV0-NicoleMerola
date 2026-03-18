@@ -1,4 +1,4 @@
-def BMR_rechner( gewicht, groesse, alter, geschlecht):
+def BMR_rechnen(gewicht, groesse, alter, geschlecht):
     if geschlecht == "Mann":
         bmr = 10 * gewicht + 6.25 * groesse - 5 * alter + 5
     elif geschlecht == "Frau":
