@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 from functions.kalorienrechner import BMR_rechnen
 
-
 st.title("Kalorienbedarf Rechner")
 st.write("Berechne deinen täglichen Kalorienbedarf.")
 
@@ -11,7 +10,7 @@ for key in ("geschlecht", "gewicht", "groesse", "alter", "aktivitaet", "kalorien
     if key not in st.session_state:
         st.session_state[key] = None
 
-# Falls data_df noch nicht existiert, leeres DataFrame anlegen
+# Falls data_df noch nicht existiert
 if "data_df" not in st.session_state:
     st.session_state["data_df"] = pd.DataFrame(
         columns=["timestamp", "geschlecht", "gewicht", "groesse", "alter", "aktivitaet", "kalorien"]
@@ -45,7 +44,7 @@ if submit:
     }
 
     kalorien = bmr * faktor[aktivitaet]
-    st.session_state.kalorien = kalorien
+    st.session_state["kalorien"] = kalorien
 
     new_row = {
         "timestamp": pd.Timestamp.now(),
@@ -63,24 +62,25 @@ if submit:
     )
 
     data_manager = st.session_state["data_manager"]
-data_manager.save_user_data(st.session_state["data_df"], "data.csv")
+    data_manager.save_user_data(st.session_state["data_df"], "data.csv")
 
 # Ergebnis anzeigen
-if st.session_state.kalorien is not None:
-    st.metric("Dein täglicher Kalorienbedarf", f"{st.session_state.kalorien:.0f} kcal")
+if st.session_state["kalorien"] is not None:
+    st.metric("Dein täglicher Kalorienbedarf", f"{st.session_state['kalorien']:.0f} kcal")
 
 # Eingaben anzeigen
-st.write("### Eingaben (Session State)")
+st.write("### Eingaben")
 st.write({
-    "Geschlecht": st.session_state.geschlecht,
-    "Gewicht": st.session_state.gewicht,
-    "Größe": st.session_state.groesse,
-    "Alter": st.session_state.alter,
-    "Aktivität": st.session_state.aktivitaet,
+    "Geschlecht": st.session_state["geschlecht"],
+    "Gewicht": st.session_state["gewicht"],
+    "Größe": st.session_state["groesse"],
+    "Alter": st.session_state["alter"],
+    "Aktivität": st.session_state["aktivitaet"],
 })
 
 # Verlauf anzeigen
 if not st.session_state["data_df"].empty:
     st.write("### Verlauf")
     st.dataframe(st.session_state["data_df"])
+
   
